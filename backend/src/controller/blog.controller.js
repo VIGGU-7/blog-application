@@ -37,6 +37,10 @@ export const getBlogs=async(req,res)=>{
             as:"ownerDetails"
         }},{
             $unwind:"$ownerDetails"
+        },{
+            $project:{
+                "ownerDetails.password":0
+            }
         }])
         res.status(200).json(blogs)
     }catch(error){
@@ -49,12 +53,13 @@ export const getBlogs=async(req,res)=>{
 }
 export const getBlogsById=async(req,res)=>{
     const id=req.params.id
+    console.log(id)
     try {
          if (!mongoose.Types.ObjectId.isValid(id)) {
           return res.status(400).json({ error: "Invalid blog ID" });
          }
         const blog=await Blog.aggregate([
-            {$match:{_id:id}},
+            {$match:{_id:new mongoose.Types.ObjectId(id)}},
             {$lookup:{
             from:"users",
             localField:'owner',
@@ -62,6 +67,10 @@ export const getBlogsById=async(req,res)=>{
             as:"ownerDetails"
         }},{
             $unwind:"$ownerDetails"
+        },{
+            $project:{
+                "ownerDetails.password":0
+            }
         }
         ])
         if(!blog){
