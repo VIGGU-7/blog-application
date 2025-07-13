@@ -5,6 +5,11 @@ export const createBlog=async(req,res)=>{
     const userId=req.user.id
     const {title,content,image}=req.body
     try {
+        if(!id){
+            return res.status(401).json({
+                message:"You need to be logged in to post a blog"
+            })
+        }
         if(!title || !content || !image){
             return res.status(400).json({
                 message:"All fields are required"
@@ -58,21 +63,75 @@ export const getBlogsById=async(req,res)=>{
          if (!mongoose.Types.ObjectId.isValid(id)) {
           return res.status(400).json({ error: "Invalid blog ID" });
          }
-        const blog=await Blog.aggregate([
-            {$match:{_id:new mongoose.Types.ObjectId(id)}},
-            {$lookup:{
-            from:"users",
-            localField:'owner',
-            foreignField:'_id',
-            as:"ownerDetails"
-        }},{
-            $unwind:"$ownerDetails"
-        },{
-            $project:{
-                "ownerDetails.password":0
-            }
+        const blog = await Blog.aggregate([
+  {
+    $match: { _id: new mongoose.Types.ObjectId(id) }
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "owner",
+      foreignField: "_id",
+      as: "ownerDetails"
+    }
+  },
+  {
+    $unwind: "$ownerDetails"
+  },
+  {
+    $lookup: {
+      from: "comments",
+      localField: "_id",
+      foreignField: "blog",
+      as: "Comments"
+    }
+  },
+  {
+    $unwind: {
+      path: "$Comments",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "Comments.owner",
+      foreignField: "_id",
+      as: "Comments.ownerDetails"
+    }
+  },
+  {
+    $unwind: {
+      path: "$Comments.ownerDetails",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $group: {
+      _id: "$_id",
+      title: { $first: "$title" },
+      content: { $first: "$content" },
+      ownerDetails: { $first: "$ownerDetails" },
+      Comments: {
+        $push: {
+          _id: "$Comments._id",
+          comment: "$Comments.comment",
+          ownerDetails: {
+            _id: "$Comments.ownerDetails._id",
+            name: "$Comments.ownerDetails.name",
+            email: "$Comments.ownerDetails.email"
+          }
         }
-        ])
+      }
+    }
+  },
+  {
+    $project: {
+      "ownerDetails.password": 0
+    }
+  }
+]);
+
         if(!blog){
               return res.status(404).json({
                 message:"Blog not found"

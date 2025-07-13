@@ -13,10 +13,6 @@ const blogSchema=new mongoose.Schema({
         type:String,
         required:[true,"content is required"]
     },
-    Likes:{
-        type:String,
-        default:0
-    },
     tags:{
         type:[String]
     },
