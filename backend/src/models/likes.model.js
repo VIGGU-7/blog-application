@@ -1,18 +1,14 @@
 import mongoose from 'mongoose'
-const commentSchema=new mongoose.Schema({
-    comment:{
-        type:String,
-        required:[true,"Title is required"]
-    },
-    blog:{
+const likeSchema=new mongoose.Schema({
+    blogId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Blog",
         required:true,
     },
-    owner:{
+    likedBy:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:true,
     }
 })
-export const Comment=mongoose.model("Comment",commentSchema)
+export const like=mongoose.model("Like",likeSchema)
