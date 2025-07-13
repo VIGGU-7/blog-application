@@ -1,5 +1,5 @@
 import { Blog } from "../models/blog.model.js";
-import { uploader } from "../utils/cloudinary.js";
+import  cloudinary  from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 export const createBlog=async(req,res)=>{
     const userId=req.user.id
@@ -10,17 +10,9 @@ export const createBlog=async(req,res)=>{
                 message:"All fields are required"
             })
         }
-        let imageUrl=null;
-        await uploader.upload(image,async(error,result)=>{
-            if(error){
-                return res.status(500).json({
-                    message:"An error occured while uploading the image"
-                })
-            }
-            else{
-                 imageUrl=await result.secure_url;
-            }
-        })
+        
+        const result=await cloudinary.uploader.upload(image)
+        const imageUrl=result.secure_url;
         const newBlog=new Blog({
             title:title,
             image:imageUrl,
@@ -32,14 +24,14 @@ export const createBlog=async(req,res)=>{
     } catch (error) {
         console.log(error)
         return res.status(500).json({
-            message:"lavde"
+            message:"Internal server error"
         })
     }
 }
 export const getBlogs=async(req,res)=>{
     try{
         const blogs=await Blog.aggregate([{$lookup:{
-            from:"User",
+            from:"users",
             localField:'owner',
             foreignField:'_id',
             as:"ownerDetails"
@@ -64,7 +56,7 @@ export const getBlogsById=async(req,res)=>{
         const blog=await Blog.aggregate([
             {$match:{_id:id}},
             {$lookup:{
-            from:"User",
+            from:"users",
             localField:'owner',
             foreignField:'_id',
             as:"ownerDetails"
