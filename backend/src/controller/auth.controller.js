@@ -269,7 +269,9 @@ export const checksession = async (req, res) => {
       },
       {
         $project: {
-          blogs: 0 // exclude actual blogs array
+          blogs: 0,
+          password: 0,
+          code:0,
         }
       }
     ]);
