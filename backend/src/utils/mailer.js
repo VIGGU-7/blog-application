@@ -2,13 +2,14 @@ import nodemailer from 'nodemailer'
 import 'dotenv/config'
 //use your own mail smtp server
 const transport = nodemailer.createTransport({
-  host: "sandbox.smtp.mailtrap.io",
-  port: 2525,
+  host: process.env.MAIL_HOST,
+  port: process.env.MAIL_PORT,
   auth: {
-    user: "fcae94330ac2da",
-    pass: "1a6bec4a7d4253"
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS
   }
 });
+
 
 export const sendEmail=async(email,token,type)=>{
     const verifyEmail={

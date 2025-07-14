@@ -12,10 +12,8 @@ function Blogs() {
       try {
         const response = await apiInstance.get("/blog/");
         setBlogs(response.data || []);
-        console.log(response)
       } catch (err) {
         setError("Failed to load blogs");
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -23,10 +21,11 @@ function Blogs() {
 
     getBlogs();
   }, []);
-
   if (loading) return <p className='text-center mt-10'>Loading blogs...</p>;
   if (error) return <p className='text-center text-red-500 mt-10'>{error}</p>;
-
+  if(blogs.length===0){
+    return <p className='text-center text-xl text-red-500 mt-10'>No blogs have been posted</p>;
+  }
   return (
     <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-8'>
       {blogs.map((blog) => (
