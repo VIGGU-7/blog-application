@@ -9,6 +9,7 @@ import Verify from './pages/Verify'
 import Homepage from './pages/Homepage'
 import { Loader } from 'lucide-react'
 import Reset from './pages/Reset'
+import Blogview from './pages/Blogview'
 function App() {
    const { checkSession, isLoggedIn, isVerified, isLoading } = useAuthStore()
 
@@ -66,6 +67,12 @@ function App() {
         path="/reset"
         element={
           <Reset/>
+        }
+      />
+        <Route
+        path="/blog/:id"
+        element={
+          <Blogview/>
         }
       />
     </Routes>
