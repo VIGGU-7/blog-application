@@ -1,7 +1,8 @@
-import { User } from "../models/user.model.js"
+import { User, User } from "../models/user.model.js"
 import bcrypt from 'bcryptjs'
 import { generateToken } from "../utils/generateToken.js"
 import { sendEmail } from "../utils/mailer.js"
+import cloudinary from "../utils/cloudinary.js"
 export const login=async(req,res)=>{
     //checks for req.body
     if(!req.body){
@@ -255,3 +256,39 @@ export const checksession=async(req,res)=>{
         })
     }
 }
+export const editProfile = async (req, res) => {
+    const id = req.user.id;
+    const { image, bio } = req.body;
+
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Only upload and update image if provided
+        if (image) {
+            const result = await cloudinary.uploader.upload(image);
+            user.profilePic = result.secure_url;
+        }
+
+        // Update bio if provided
+        if (bio !== undefined) {
+            user.bio = bio;
+        }
+
+        await user.save(); // Await the save operation
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            user: {
+                id: user._id,
+                profilePic: user.profilePic,
+                bio: user.bio
+            }
+        });
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
