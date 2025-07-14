@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 import { generateToken } from "../utils/generateToken.js"
 import { sendEmail } from "../utils/mailer.js"
 import cloudinary from "../utils/cloudinary.js"
+import { Blog } from "../models/blog.model.js"
+import mongoose from "mongoose"
 export const login=async(req,res)=>{
     //checks for req.body
     if(!req.body){
@@ -245,17 +247,40 @@ export const resendVerifyEmail=async(req,res)=>{
         })
     }
 }
-export const checksession=async(req,res)=>{
-    const userId=req.user.id;
-    try {
-        const user=await User.findById(userId).select("-password")
-        res.status(200).json(user)
-    } catch (error) {
-        res.status(500).json({
-            message:"Internal server error"
-        })
-    }
-}
+export const checksession = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const user = await User.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(userId) }
+      },
+      {
+        $lookup: {
+          from: "blogs",
+          localField: "_id",
+          foreignField: "owner",
+          as: "blogs"
+        }
+      },
+      {
+        $addFields: {
+          blogCount: { $size: "$blogs" }
+        }
+      },
+      {
+        $project: {
+          blogs: 0 // exclude actual blogs array
+        }
+      }
+    ]);
+
+    res.status(200).json(user[0]); // send only the single user object
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const editProfile = async (req, res) => {
     const id = req.user.id;
     const { image, bio } = req.body;
