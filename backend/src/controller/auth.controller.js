@@ -292,3 +292,16 @@ export const editProfile = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+export const logout=async(req,res)=>{
+    try{
+        res.cookie("token","",{
+            maxAge:0
+        })
+        res.status(200).json({
+            message:"Logout success"
+        })
+    }catch(error){
+         console.error("Error updating profile:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
