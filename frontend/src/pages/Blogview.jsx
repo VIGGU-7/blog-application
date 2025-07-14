@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import Comment from '../components/Comment';
 import Viewcomments from '../components/Viewcomments';
 import { useAuthStore } from '../lib/store';
-
+import { FaHeart } from 'react-icons/fa';
 function Blogview() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFound, setIsFound] = useState(false);
@@ -66,10 +66,11 @@ function Blogview() {
             <p className='ml-3 text-gray-700 font-medium'>
               {response.ownerDetails?.userName || "Unknown Author"}
             </p>
+             <FaHeart className='text-gray-600 ml-auto' />
           </div>
 
           <img
-            className="rounded-xl w-full mb-4"
+            className="rounded-xl w-120 mb-4"
             src={response.image}
             alt={response.title}
           />
