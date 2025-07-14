@@ -24,7 +24,7 @@ function Comment({ blogId }) {
   };
 
   return (
-    <div className='mt-10 relative'>
+    <div className='mt-30 relative'>
       <input
         type="text"
         value={comment}
