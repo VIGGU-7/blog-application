@@ -194,19 +194,19 @@ export const verifyUser=async(req,res)=>{
     const {code}=req.params
     try {
         if(!code){
-            res.status(400).json({
+            return res.status(400).json({
                message:"No code has been specified"
             })
         }
       const user=await User.findById(id).select("-password")
       if(user.isVerified){
-         res.status(400).json({
+         return res.status(400).json({
             success:false,
             message:"User already verified"
         })
       }
       if(code===user.code){
-        res.status(200).json({
+        return res.status(200).json({
             success:true,
             message:"User verified succesfully"
         })
@@ -214,7 +214,7 @@ export const verifyUser=async(req,res)=>{
         user.isVerified=true;
         user.save()
       }
-      res.status(400).json({
+      return res.status(400).json({
             success:false,
             message:"code doesn't match"
         })
