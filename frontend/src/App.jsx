@@ -10,6 +10,7 @@ import Homepage from './pages/Homepage'
 import { Loader } from 'lucide-react'
 import Reset from './pages/Reset'
 import Blogview from './pages/Blogview'
+import CreateBlog from './pages/Createblogs'
 function App() {
    const { checkSession, isLoggedIn, isVerified, isLoading } = useAuthStore()
 
@@ -74,6 +75,12 @@ function App() {
         element={
           <Blogview/>
         }
+      />
+      <Route
+      path='/create'
+      element={
+      <CreateBlog/>
+      }
       />
     </Routes>
   )
