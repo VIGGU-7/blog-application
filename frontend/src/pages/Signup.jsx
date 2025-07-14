@@ -70,7 +70,7 @@ function Signup() {
 
             <button 
             onClick={onSubmit}
-            className='bg-blue-500 px-3 py-1 text-white rounded-md mt-3 hover:cursor-pointer'>Login</button>
+            className='bg-blue-500 px-3 py-1 text-white rounded-md mt-3 hover:cursor-pointer'>Signup</button>
             <p className='text-center'>Already have an account ? <span 
             onClick={()=>{
                 window.location.href="/login"
