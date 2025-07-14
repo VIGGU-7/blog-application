@@ -23,7 +23,7 @@ export const likeOrDislike = async (req, res) => {
     if (likeExists) {
       await like.findOneAndDelete({ blogId: blogId, likedBy: userId });
       return res.status(200).json({
-        message: "Disliked",
+        liked:false,
       });
     } else {
       const newLike = new like({
@@ -32,7 +32,7 @@ export const likeOrDislike = async (req, res) => {
       });
       await newLike.save();
       return res.status(200).json({
-        message: "Liked",
+        liked:true
       });
     }
   } catch (error) {
