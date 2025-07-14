@@ -35,7 +35,17 @@ export const getBlogs=async(req,res)=>{
             localField:'owner',
             foreignField:'_id',
             as:"ownerDetails"
-        }},{
+        }},
+        {$lookup:
+          {from:"likes",
+          localField:'_id',
+          foreignField:'blogId',
+          as:"likes"}
+        },{
+      $addFields: {
+      likeCount: { $size: "$likes" }
+        }
+        },{
             $unwind:"$ownerDetails"
         },{
             $project:{
@@ -53,7 +63,6 @@ export const getBlogs=async(req,res)=>{
 }
 export const getBlogsById=async(req,res)=>{
     const id=req.params.id
-    console.log(id)
     try {
          if (!mongoose.Types.ObjectId.isValid(id)) {
           return res.status(400).json({ error: "Invalid blog ID" });
@@ -79,6 +88,17 @@ export const getBlogsById=async(req,res)=>{
       localField: "_id",
       foreignField: "blog",
       as: "Comments"
+    }
+  },
+  {$lookup:
+          {from:"likes",
+          localField:'_id',
+          foreignField:'blogId',
+          as:"likes"}
+  },
+  {
+    $addFields:{
+      likeCount:{$size:"$likes"}
     }
   },
   {
@@ -107,6 +127,7 @@ export const getBlogsById=async(req,res)=>{
       title: { $first: "$title" },
       content: { $first: "$content" },
       ownerDetails: { $first: "$ownerDetails" },
+      likeCount: { $first: "$likeCount" },
       Comments: {
         $push: {
           _id: "$Comments._id",
