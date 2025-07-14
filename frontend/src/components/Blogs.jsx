@@ -54,7 +54,9 @@ function Blogs() {
             <FaHeart className='text-gray-600 ml-auto' />
             <p className='ml-1'>{blog.likeCount}</p>
           </div>
-          
+          <p className='ml-13'>
+            {blog.ownerDetails.Bio}
+          </p>
         </div>
       ))}
     </div>
