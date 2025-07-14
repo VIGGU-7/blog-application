@@ -31,6 +31,7 @@ function Blogview() {
       setResponse(res.data);
       setComments(res.data.comments);
       setIsFound(true);
+      console.log(res.data)
     } catch (error) {
       console.log("Something went wrong");
       toast.error("Blog not found");
