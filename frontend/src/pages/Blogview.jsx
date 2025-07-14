@@ -12,9 +12,19 @@ function Blogview() {
   const [isFound, setIsFound] = useState(false);
   const [response, setResponse] = useState(null);
   const [comments, setComments] = useState([]);
+  const [isLiked,setIsLiked]=useState(null)
   const { id } = useParams();
   const { commentPosted } = useAuthStore();
-
+  const onLike=async()=>{
+    try {
+      const res = await apiInstance.get(`/like/${id}`);
+      setIsLiked(res.data.liked)
+    } catch (error) {
+      toast.error(error?.res?.data?.message)
+    }finally{
+       setIsLoading(false);
+    }
+  }
   const getBlog = async () => {
     try {
       const res = await apiInstance.get(`/blog/${id}`);
@@ -31,6 +41,7 @@ function Blogview() {
 
   useEffect(() => {
     getBlog();
+    onLike();
   }, [id]);
 
   useEffect(() => {
@@ -66,7 +77,7 @@ function Blogview() {
             <p className='ml-3 text-gray-700 font-medium'>
               {response.ownerDetails?.userName || "Unknown Author"}
             </p>
-             <FaHeart className='text-gray-600 ml-auto' />
+             <FaHeart className={`${isLiked ? "text-red-600":"text-gray-600"} ml-auto`} onClick={onLike}/>
           </div>
 
           <img
