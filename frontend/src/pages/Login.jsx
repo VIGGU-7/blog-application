@@ -32,7 +32,7 @@ function Login() {
             
 
         } catch (error) {
-            return toast.error(error?.response?.error.message)
+            return toast.error(error?.response?.data?.message)
         }
     }
   return (
