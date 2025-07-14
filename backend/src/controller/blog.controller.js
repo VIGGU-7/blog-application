@@ -5,11 +5,6 @@ export const createBlog=async(req,res)=>{
     const userId=req.user.id
     const {title,content,image}=req.body
     try {
-        if(!id){
-            return res.status(401).json({
-                message:"You need to be logged in to post a blog"
-            })
-        }
         if(!title || !content || !image){
             return res.status(400).json({
                 message:"All fields are required"
