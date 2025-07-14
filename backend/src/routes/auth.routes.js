@@ -9,6 +9,6 @@ router.post("/forgotpass/:code",forgotPassword)
 router.post("/verify/:code",checkAuth,verifyUser)
 router.post("/resendverify",checkAuth,resendVerifyEmail)
 router.get("/checksession",checkAuth,checksession)
-router.get("/updateprofile",checkAuth,editProfile)
+router.post("/updateprofile",checkAuth,editProfile)
 router.get("/logout",logout)
 export default router;
