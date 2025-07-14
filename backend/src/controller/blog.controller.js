@@ -1,163 +1,178 @@
 import { Blog } from "../models/blog.model.js";
-import  cloudinary  from "../utils/cloudinary.js";
+import cloudinary from "../utils/cloudinary.js";
 import mongoose from "mongoose";
-export const createBlog=async(req,res)=>{
-    const userId=req.user.id
-    const {title,content,image}=req.body
-    try {
-        if(!title || !content || !image){
-            return res.status(400).json({
-                message:"All fields are required"
-            })
+
+export const createBlog = async (req, res) => {
+  const userId = req.user.id;
+  const { title, content, image } = req.body;
+
+  try {
+    if (!title || !content || !image) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!image.startsWith("data:image")) {
+      return res.status(400).json({ message: "Invalid image format" });
+    }
+
+    const result = await cloudinary.uploader.upload(image);
+    const imageUrl = result.secure_url;
+
+    const newBlog = new Blog({
+      title,
+      image: imageUrl,
+      content,
+      owner: userId
+    });
+
+    const blog = await newBlog.save();
+    return res.status(201).json(blog);
+  } catch (error) {
+    console.error("createBlog Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "ownerDetails"
         }
-        
-        const result=await cloudinary.uploader.upload(image)
-        const imageUrl=result.secure_url;
-        const newBlog=new Blog({
-            title:title,
-            image:imageUrl,
-            content:content,
-            owner:userId
-        })
-        const blog=await newBlog.save()
-        return res.status(201).json(blog)
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({
-            message:"Internal server error"
-        })
-    }
-}
-export const getBlogs=async(req,res)=>{
-    try{
-        const blogs=await Blog.aggregate([{$lookup:{
-            from:"users",
-            localField:'owner',
-            foreignField:'_id',
-            as:"ownerDetails"
-        }},
-        {$lookup:
-          {from:"likes",
-          localField:'_id',
-          foreignField:'blogId',
-          as:"likes"}
-        },{
-      $addFields: {
-      likeCount: { $size: "$likes" }
+      },
+      {
+        $unwind: "$ownerDetails"
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "blogId",
+          as: "likes"
         }
-        },{
-            $unwind:"$ownerDetails"
-        },{
-            $project:{
-                "ownerDetails.password":0
-            }
-        }])
-        res.status(200).json(blogs)
-    }catch(error){
-        console.log(error)
-        console.log("An error occured in get blog controller")
-        return res.status(500).json({
-            message:"Internal server error"
-        })
-    }
-}
-export const getBlogsById=async(req,res)=>{
-    const id=req.params.id
-    try {
-         if (!mongoose.Types.ObjectId.isValid(id)) {
-          return res.status(400).json({ error: "Invalid blog ID" });
-         }
-        const blog = await Blog.aggregate([
-  {
-    $match: { _id: new mongoose.Types.ObjectId(id) }
-  },
-  {
-    $lookup: {
-      from: "users",
-      localField: "owner",
-      foreignField: "_id",
-      as: "ownerDetails"
-    }
-  },
-  {
-    $unwind: "$ownerDetails"
-  },
-  {
-    $lookup: {
-      from: "comments",
-      localField: "_id",
-      foreignField: "blog",
-      as: "Comments"
-    }
-  },
-  {$lookup:
-          {from:"likes",
-          localField:'_id',
-          foreignField:'blogId',
-          as:"likes"}
-  },
-  {
-    $addFields:{
-      likeCount:{$size:"$likes"}
-    }
-  },
-  {
-    $unwind: {
-      path: "$Comments",
-      preserveNullAndEmptyArrays: true
-    }
-  },
-  {
-    $lookup: {
-      from: "users",
-      localField: "Comments.owner",
-      foreignField: "_id",
-      as: "Comments.ownerDetails"
-    }
-  },
-  {
-    $unwind: {
-      path: "$Comments.ownerDetails",
-      preserveNullAndEmptyArrays: true
-    }
-  },
-  {
-    $group: {
-      _id: "$_id",
-      title: { $first: "$title" },
-      content: { $first: "$content" },
-      ownerDetails: { $first: "$ownerDetails" },
-      likeCount: { $first: "$likeCount" },
-      Comments: {
-        $push: {
-          _id: "$Comments._id",
-          comment: "$Comments.comment",
-          ownerDetails: {
-            _id: "$Comments.ownerDetails._id",
-            name: "$Comments.ownerDetails.name",
-            email: "$Comments.ownerDetails.email"
-          }
+      },
+      {
+        $addFields: {
+          likeCount: { $size: "$likes" }
+        }
+      },
+      {
+        $project: {
+          "ownerDetails.password": 0
         }
       }
-    }
-  },
-  {
-    $project: {
-      "ownerDetails.password": 0
-    }
-  }
-]);
+    ]);
 
-        if(!blog){
-              return res.status(404).json({
-                message:"Blog not found"
-            })
-        }
-        return res.status(200).json(blog)
-    } catch (error) {
-        console.log(error)
-         return res.status(500).json({
-            message:"Internal server error"
-        })
+    return res.status(200).json(blogs);
+  } catch (error) {
+    console.error("getBlogs Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getBlogsById = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid blog ID" });
     }
-}
+
+    const blog = await Blog.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(id) }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "ownerDetails"
+        }
+      },
+      {
+        $unwind: "$ownerDetails"
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "blog",
+          as: "comments"
+        }
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "blogId",
+          as: "likes"
+        }
+      },
+      {
+        $addFields: {
+          likeCount: { $size: "$likes" }
+        }
+      },
+      {
+        $unwind: {
+          path: "$comments",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.owner",
+          foreignField: "_id",
+          as: "comments.ownerDetails"
+        }
+      },
+      {
+        $unwind: {
+          path: "$comments.ownerDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          title: { $first: "$title" },
+          content: { $first: "$content" },
+          image: { $first: "$image" },
+          ownerDetails: { $first: "$ownerDetails" },
+          likeCount: { $first: "$likeCount" },
+          comments: {
+            $push: {
+              _id: "$comments._id",
+              comment: "$comments.comment",
+              ownerDetails: {
+                _id: "$comments.ownerDetails._id",
+                name: "$comments.ownerDetails.name",
+                email: "$comments.ownerDetails.email"
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          "ownerDetails.password": 0
+        }
+      }
+    ]);
+
+    if (!blog || blog.length === 0) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    return res.status(200).json(blog[0]); // Return single blog object
+  } catch (error) {
+    console.error("getBlogsById Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
