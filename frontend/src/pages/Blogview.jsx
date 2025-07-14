@@ -62,6 +62,7 @@ function Blogview() {
       </div>
     );
   }
+  console.log(comments)
   return (
     <>
       <Navbar />
@@ -100,7 +101,7 @@ function Blogview() {
         ownerId={comment.ownerDetails._id}
         comment={comment.comment}
         commentId={comment._id}
-        userAvatar={comment.ownerDetails?.profilePic}
+        userAvatar={comment.ownerDetails?.image}
         userName={comment.ownerDetails?.userName}
       />
     ))}
