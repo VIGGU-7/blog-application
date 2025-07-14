@@ -5,6 +5,7 @@ import { connectDB } from './utils/connectDB.js';
 import authRoutes from './routes/auth.routes.js'
 import blogRoutes from './routes/blog.routes.js'
 import commentRoutes from './routes/comment.routes.js'
+import likeRoutes from './routes/like.routes.js'
 import 'dotenv/config'
 const PORT=process.env.port || 8080
 const app = express();
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use("/api/auth",authRoutes);
 app.use("/api/blog",blogRoutes);
 app.use("/api/comment",commentRoutes)
+app.use("/api/like",likeRoutes)
 
 
 //server
