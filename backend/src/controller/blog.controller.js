@@ -178,23 +178,3 @@ export const getBlogsById = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-export const blogsByuserId=async(req,res)=>{
-  const id=req.user.id
-  try {
-    const blogsByUser=await Blog.findOne({owner:id})
-    if(!blogsByUser){
-      return res.status(404).json({
-        message:"No Blogs Found associated with user"
-      })
-    }
-    return res.status(200).json(blogsByUser)
-  } catch (error) {
-    console.log(
-      "Issue in blogsByuserId controller"
-    )
-    return res.status(500).json({
-      message:"Internal server error"
-    })
-  }
-}

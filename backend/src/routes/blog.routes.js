@@ -5,5 +5,4 @@ const router=Router()
 router.post("/create",checkAuth,createBlog)
 router.get("/",getBlogs)
 router.get("/:id",getBlogsById)
-router.get("/user/blogs",checkAuth,blogsByuserId)
 export default router;
