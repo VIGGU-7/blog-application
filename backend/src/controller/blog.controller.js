@@ -153,7 +153,9 @@ export const getBlogsById = async (req, res) => {
               ownerDetails: {
                 _id: "$comments.ownerDetails._id",
                 name: "$comments.ownerDetails.name",
-                email: "$comments.ownerDetails.email"
+                email: "$comments.ownerDetails.email",
+                userName:"$comments.ownerDetails.userName",
+                image:"$comments.ownerDetails.profilePic"
               }
             }
           }
