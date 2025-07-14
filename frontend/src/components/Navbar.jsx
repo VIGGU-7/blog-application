@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../lib/store';
-
+import { apiInstance } from '../lib/axios';
+import toast from 'react-hot-toast';
 function Navbar() {
   const navigate = useNavigate();
     const {isLoggedIn}=useAuthStore()
@@ -9,7 +10,15 @@ function Navbar() {
     isActive
       ? 'text-black font-medium underline'
       : 'text-gray-600 hover:text-black ml-4';
-
+  const logout=async()=>{
+    try {
+      const res=await apiInstance.get("/auth/logout")
+      toast.success("logout success")
+      navigate("/login")
+    } catch(error) {
+      toast.error(error?.res?.data?.message)
+    }
+  }
   return (
     <nav className='w-full shadow-sm bg-white'>
       <div className='container mx-auto flex justify-between items-center py-4 px-6'>
