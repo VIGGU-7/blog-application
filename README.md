@@ -49,8 +49,8 @@ A full-stack blog platform where users can sign up, log in, create, edit, and li
 #### 1. Clone the repository
 
 ```sh
-git clone https://github.com/VIGGU-7/chat-application.git
-cd chat-application
+git clone https://github.com/VIGGU-7/blog-application.git
+cd blog-application
 ```
 
 #### 2. Install dependencies
